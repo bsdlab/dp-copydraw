@@ -156,10 +156,10 @@ class CopyDraw:
             f"block_{block_nr:02}" if block_nr is not None else f'BLOCK_{time.strftime("%Y-%m-%d")}'
 
         # Check if recordings for this block nr already exist
-        outfolder =self.paths['session'].joinpath(self.block_settings['block_name'])
+        outfolder =self.paths['session'].joinpath("behavioral", self.block_settings['block_name'])
         if outfolder.exists():
             self.block_settings['block_name'] += f'_{time.strftime("%Y%m%d%H%M%S")}'
-            outfolder =self.paths['session'].joinpath(self.block_settings['block_name'])
+            outfolder =self.paths['session'].joinpath("behavioral", self.block_settings['block_name'])
 
         self.log.info(
             f'Initialised block: {self.block_settings}\n{self.win_settings}')

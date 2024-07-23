@@ -8,7 +8,7 @@ standard_performance_metrics: ['speed_sub', 'velocity_x_sub', 'velocity_y_sub',
 
 block: 
   n_trials: 2
-  letter_time: 2
+  letter_time: 3
   n_letters: 3
   stim_size: 35                 # Size of the trace to be displayed (out of the preset {10, 15, 20, 25, 30, 35})
   size: 0.6                     # scale the trace if needed
