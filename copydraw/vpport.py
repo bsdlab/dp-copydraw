@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
 import time
-import serial
 
+import serial
 from pylsl import StreamInfo, StreamOutlet
 
 
 class VPPort(object):
-
-    """ Class for interacting with the virtual serial
-        port provided by the BV TriggerBox
+    """Class for interacting with the virtual serial
+    port provided by the BV TriggerBox
 
     """
 
     def __init__(self, serial_nr, pulsewidth=0.01):
-        """ Open the port at the given serial_nr
+        """Open the port at the given serial_nr
 
         Parameters
         ----------
@@ -27,21 +26,28 @@ class VPPort(object):
         """
         try:
             self.port = serial.Serial(serial_nr)
-        except Exception as ex:     # if trigger box is not available at given serial_nr
-            print("?" * 80 + "\n\n\n\n"+ f"??? Could not connect to serial, will continue with dummy: {ex=}"+ "\n\n\n" + "?" * 80)
+        except Exception as ex:  # if trigger box is not available at given serial_nr
+            print(
+                "?" * 80
+                + "\n\n\n\n"
+                + f"??? Could not connect to serial, will continue with dummy: {ex=}"
+                + "\n\n\n"
+                + "?" * 80
+            )
             self.create_dummy(serial_nr)
             raise ex
 
         self.pulsewidth = pulsewidth
 
         self.stream_info = StreamInfo(
-            name='CopyDrawParadigmMarkerStream',
-            type='Markers', channel_count=1,
+            name="CopyDrawParadigmMarkerStream",
+            type="Markers",
+            channel_count=1,
             nominal_srate=0,
-            channel_format='int32',
-            source_id='myuiCopyDrawParadigmMarker')
+            channel_format="int32",  # think of changing to int64 as there might be an issue reading int32 on windows
+            source_id="myuiCopyDrawParadigmMarker",
+        )
         self.stream_outlet = StreamOutlet(self.stream_info)
-
 
     def write(self, data):
         """
@@ -75,9 +81,12 @@ class VPPort(object):
 
     def create_dummy(self, serial_nr):
         """Initialize a dummy version - used for testing"""
-        print("-"*80 +
-              "\n\nInitializing DUMMY VPPORT\nSetup for regular VPPORT at" +
-              f" at {serial_nr} failed \n No device present?\n" + "-"*80)
+        print(
+            "-" * 80
+            + "\n\nInitializing DUMMY VPPORT\nSetup for regular VPPORT at"
+            + f" at {serial_nr} failed \n No device present?\n"
+            + "-" * 80
+        )
 
         self.port = None
         self.write = self.dummy_write
