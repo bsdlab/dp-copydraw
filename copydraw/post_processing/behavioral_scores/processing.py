@@ -1,24 +1,21 @@
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
+
 import joblib
-import yaml
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-from typing import Any
-from collections.abc import Iterable
-from copydraw.utils.logging import logger
-from copydraw.post_processing.behavioral_scores import dtw_py
-from copydraw.post_processing.behavioral_scores.projection import (
-    projection_performance_metrics,
-)
-from copydraw.post_processing.recordings_io import load_copydraw_record_yaml
-
+import plotly.express as px
+import yaml
 from rich.progress import track
-from pathlib import Path
 from sklearn.metrics import roc_auc_score
 
-import plotly.express as px
+from copydraw.post_processing.behavioral_scores import dtw_py
+from copydraw.post_processing.behavioral_scores.projection import \
+    projection_performance_metrics
+from copydraw.post_processing.recordings_io import load_copydraw_record_yaml
+from copydraw.utils.logging import logger
 
 
 def kin_scores(var_pos, delta_t, sub_sampled=False):
@@ -87,9 +84,7 @@ def computeScoreSingleTrial(traceLet, template, trialTime):
     )
 
     # normalize distance dt by length of copied template (in samples)
-    trial_results["dt_norm"] = trial_results["dt_l"] / (
-        trial_results["pathlen"] + 1
-    )
+    trial_results["dt_norm"] = trial_results["dt_l"] / (trial_results["pathlen"] + 1)
 
     # get length of copied part of the template (in samples)
     trial_results["len"] = (trial_results["pathlen"] + 1) / len(template)
@@ -120,15 +115,20 @@ def process_trial(trial_file: Path, use_longest_only: bool = True):
     # as the trace_let is recorded in screen pixel coords
     temp = res["template_pix"] * res["template_scaling"]
     scaled_template = temp - (
-        res["template_pos"]
-        / res["scaling_matrix"][0, 0]
-        / res["template_scaling"]
+        res["template_pos"] / res["scaling_matrix"][0, 0] / res["template_scaling"]
     )
 
     res["scaled_template"] = scaled_template
 
-    trace = ([tr for tr in res['traces_pix']
-              if len(tr) == max([len(e) for e in res['traces_pix']])][0] if use_longest_only else res['trace_let'])
+    trace = (
+        [
+            tr
+            for tr in res["traces_pix"]
+            if len(tr) == max([len(e) for e in res["traces_pix"]])
+        ][0]
+        if use_longest_only
+        else res["trace_let"]
+    )
 
     # do dtw etc
     scores = computeScoreSingleTrial(
@@ -200,9 +200,9 @@ def movingmean(arr, w_size):
 
 def test_plot_last_test_trial_for_calibration():
     # Load last trial of last run if VPtest
-    pth = list(
-        Path("./data/VPtest/copyDraw/raw_behavioral/").rglob("*_trial*.yaml")
-    )[-1]
+    pth = list(Path("./data/VPtest/copyDraw/raw_behavioral/").rglob("*_trial*.yaml"))[
+        -1
+    ]
     res = load_copydraw_record_yaml(pth)
 
     temp = res["template_pix"] * res["template_scaling"]
@@ -305,22 +305,6 @@ def create_copydraw_results_data(
     return df_scores, model
 
 
-def plot_projection(df_scores):
-    ix_clean = df_scores.final_clean
-    auc = roc_auc_score(df_scores["stim"], df_scores["final_label"])
-    plt.scatter(
-        df_scores[np.logical_not(ix_clean)]["startTStamp"],
-        df_scores[np.logical_not(ix_clean)]["final_label"],
-        c="k",
-        label="outlier",
-    )
-    plt.title(f"Total (overfitted) AUC {auc:.3%}")
-    sns.scatterplot(
-        x="startTStamp", y="final_label", hue="stim", data=df_scores[ix_clean]
-    )
-    plt.show()
-
-
 def plot_projection_plotly(df: pd.DataFrame):
     ix_clean = df.final_clean
     fig = px.scatter(
@@ -347,9 +331,9 @@ if __name__ == "__main__":
 
     import plotly.express as px
 
-    px.scatter(
-        df[df.final_clean], x="startTStamp", y="final_label", color="stim"
-    ).show(renderer='browser')
+    px.scatter(df[df.final_clean], x="startTStamp", y="final_label", color="stim").show(
+        renderer="browser"
+    )
 
     # quick feature importance plot
     cfg = yaml.safe_load(open("./configs/paradigm_config.yaml"))

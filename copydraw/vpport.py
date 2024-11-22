@@ -109,3 +109,4 @@ class VPPort(object):
     def dummy_write(self, data):
         """Overwriting the write to pp"""
         print(f"PPort would write data: {data}")
+        self.stream_outlet.push_sample(data)

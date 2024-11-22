@@ -75,3 +75,7 @@ python -m api.server
 ```
 and after connecting e.g. via `telnet 127.0.0.1 8080`, try sending a `START_BLOCK` to run a single block of
 copydraw.
+
+
+# Trouble Shooting
+- Under MacOS with python `3.11`, running the tests will result in the following error `ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject`, even with a `numpy==1.26.4` installed. The test can however be executed in an `ipython` REPL. The non-up-to-date versions for numpy an pandas are a requirement psychopy.
