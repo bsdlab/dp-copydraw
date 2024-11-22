@@ -14,3 +14,5 @@ block:
   size: 0.6                     # scale the trace if needed
   finish_when_raised : False    # whether to end trial once pen is lifted
 
+serial_nr: "COM4"               # Address for COM port serial markers. If the address is not found, markers will only be sent via LSL
+

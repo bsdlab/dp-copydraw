@@ -1,7 +1,8 @@
+from fire import Fire
+
 from copydraw.copydraw import CopyDraw
 from copydraw.utils.config_loading import load_paradigm_config
 from copydraw.utils.logging import logger
-from fire import Fire
 
 logger.setLevel(10)
 
@@ -16,6 +17,7 @@ def init_paradigm(data_root=None, script_root=None):
         cfg["script_root"],
         # nr of screen, stored in configs/paradigm_configs.yaml
         screen_ix=cfg["screen_ix"],
+        serial_nr=cfg["serial_nr"],
     )
 
     # Session folder needs to be initialized for copydraw separately
