@@ -75,18 +75,3 @@ python -m api.server
 ```
 and after connecting e.g. via `telnet 127.0.0.1 8080`, try sending a `START_BLOCK` to run a single block of
 copydraw.
-
-
-
-# Installation Windows
-
-Use anaconda, normal python interpreter under windows will require tons of extra set up due to some libraries not being properly compiled for windows.
-1. `conda create --name copydraw python=3.9`
-1. `conda activate copydraw`
-1. `conda install -c conda-forge pywinhook`
-1. install the rest of the dependancies using `pip install -r requirements.txt` from the root of this repository
-    * it's possible there are dependancy conflicts because of different versions, just loosen them up by replacing `library=2.0` to `library>=1.5` so that the version conflict is resolved.
-1. Download [this](https://github.com/F-19-F/PyECClevo/tree/master/InpOutBinaries_1501), install the driver from the `win32` folder and copy `inpoutx64.dll`  from the `x64` folder to `C:\Windows\System32`
-
-problems with Pyo?
-* Python 3.10 - [download this python whell](https://github.com/CristiFati/Prebuilt-Binaries/blob/985a15d00440b78706f061196149f8f668659bdd/PyO/v1.0.4/pyo-1.0.4-cp310-cp310-win_amd64.whl) and use `pip install pyo_version.whl` to install pyo.
