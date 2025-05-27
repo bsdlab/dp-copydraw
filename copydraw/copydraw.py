@@ -8,13 +8,15 @@ from psychopy import clock, event, visual
 from psychopy.tools.monitorunittools import convertToPix  # , posToPix
 
 from copydraw.elements import create_element
-from copydraw.utils.config_loading import (get_nextblock_metadata,
-                                           load_block_config)
+from copydraw.utils.config_loading import get_nextblock_metadata, load_block_config
 from copydraw.utils.logging import logger
 from copydraw.utils.serialization import serialize_dict_values
-from copydraw.utils.template_tools import (create_template_order,
-                                           scale_to_norm_units, smooth,
-                                           template_to_image)
+from copydraw.utils.template_tools import (
+    create_template_order,
+    scale_to_norm_units,
+    smooth,
+    template_to_image,
+)
 from copydraw.vpport import VPPort
 
 # boxColour = [160,160,180]
