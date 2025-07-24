@@ -1,0 +1,36 @@
+project:
+  type: website
+
+website:
+  sidebar:
+    - id: "main"
+      contents:
+        - section: "Documentation"
+          contents:
+            - reference/index.qmd
+
+quartodoc:
+  package: "copydraw" # name of the package
+  source_dir: "copydraw" # as the source code is within this folder
+
+  title: "Documentation for the dp-copydraw module"
+
+  options:
+    signature_name: full
+
+  # write sidebar where quartodoc writes its content without impacting quarto
+  sidebar:
+    file: "reference/_copydraw_sidebar.yml"
+
+  sections:
+    - title: "The copydraw module"
+      desc: |
+        :::{.callout-info}
+        The github repository for this module is located at:
+        [https://github.com/bsdlab/dp-copydraw](https://github.com/bsdlab/dp-copydraw)
+        :::
+      contents:
+        - main.init_paradigm
+        - main.main
+        - copydraw.CopyDraw
+        - copydraw.VPPort
