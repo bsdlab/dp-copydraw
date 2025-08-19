@@ -4,7 +4,7 @@ import numpy as np
 
 
 def serialize_dict_values(d: dict) -> dict:
-    """ Convert all values in a dict to a serializeable type """
+    """Convert all values in a dict to a serializeable type"""
 
     # numpy data to lists for serialization
     ser_results = {}
@@ -21,6 +21,7 @@ def serialize_dict_values(d: dict) -> dict:
             ser_results[k] = v
 
     return ser_results
+
 
 def serialize_list(li: list) -> list:
     ser_results = []
