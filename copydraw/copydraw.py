@@ -32,7 +32,6 @@ from copydraw.vpport import VPPort
 
 
 class CopyDraw:
-
     def __init__(
         self,
         data_dir,
@@ -43,7 +42,6 @@ class CopyDraw:
         for_calibration: bool = False,  # add calibration dots,
         serial_nr: str | None = None,  # Usb device for the trigger box
     ):
-
         self.log = logger
 
         self.log.info("Initialising..")
@@ -77,7 +75,7 @@ class CopyDraw:
         self.win_settings = {"screen_size": screen_size, "screen_ix": screen_ix}
 
         self.log.debug(f"Paths: {self.paths}")
-        self.log.debug(f'Screen: {self.win_settings["screen_ix"]}')
+        self.log.debug(f"Screen: {self.win_settings['screen_ix']}")
 
         self.stimuli = {
             "flip": flip,
@@ -115,9 +113,8 @@ class CopyDraw:
         self,
         session_name=str,
     ):
-
         self.names["session"] = session_name
-        self.log.info(f'Initialised session: {self.names["session"]}')
+        self.log.info(f"Initialised session: {self.names['session']}")
         self.paths["session"] = self.paths["results_path"]
 
     def init_screen(self, win_color: tuple[int, int, int] = (-1, -1, -1)):
@@ -150,7 +147,6 @@ class CopyDraw:
         # block_nr: None | int = None
         block_nr: int = None,
     ):
-
         # supplied in the block_config.yaml
         self.block_settings["n_trials"] = n_trials
         self.block_settings["letter_time"] = letter_time
@@ -176,7 +172,7 @@ class CopyDraw:
         self.block_settings["block_name"] = (
             f"block_{block_nr:02}"
             if block_nr is not None
-            else f'BLOCK_{time.strftime("%Y-%m-%d")}'
+            else f"BLOCK_{time.strftime('%Y-%m-%d')}"
         )
 
         # Check if recordings for this block nr already exist
@@ -184,7 +180,7 @@ class CopyDraw:
             "behavioral", self.block_settings["block_name"]
         )
         if outfolder.exists():
-            self.block_settings["block_name"] += f'_{time.strftime("%Y%m%d%H%M%S")}'
+            self.block_settings["block_name"] += f"_{time.strftime('%Y%m%d%H%M%S')}"
             outfolder = self.paths["session"].joinpath(
                 "behavioral", self.block_settings["block_name"]
             )
@@ -242,7 +238,7 @@ class CopyDraw:
         self.set_block_settings(**block_config, block_nr=block_nr)
         self.init_block()
 
-        self.log.info(f'executing block {self.block_settings["block_idx"]}')
+        self.log.info(f"executing block {self.block_settings['block_idx']}")
         self.block_results = {}
 
         for stimuli_idx in range(self.block_settings["n_trials"]):
@@ -262,12 +258,12 @@ class CopyDraw:
         return 0
 
     def load_stimuli(self, path, short=True, size=35):
-        self.stimuli["fname"] = f'Size_{"short_" if short else ""}{size}.mat'
+        self.stimuli["fname"] = f"Size_{'short_' if short else ''}{size}.mat"
         self.paths["stimuli"] = Path(path, self.stimuli["fname"])
-        self.log.info(f'loading stimuli: {self.paths["stimuli"]}')
-        assert self.paths[
-            "stimuli"
-        ].exists(), f"Stimuli data not found: {self.paths['stimuli']}"
+        self.log.info(f"loading stimuli: {self.paths['stimuli']}")
+        assert self.paths["stimuli"].exists(), (
+            f"Stimuli data not found: {self.paths['stimuli']}"
+        )
 
         self.stimuli["file"] = scipy.io.loadmat(self.paths["stimuli"])
         self.log.info("loaded mat file")
@@ -328,7 +324,7 @@ class CopyDraw:
     def save_trial(self):
         # rudimentary atm, can ble cleaned up, flattened a little maybe
 
-        fname = f'{self.file_prefix}copyDraw_block{self.block_settings["block_idx"]}_trial{self.trial_idx}.yaml'
+        fname = f"{self.file_prefix}copyDraw_block{self.block_settings['block_idx']}_trial{self.trial_idx}.yaml"
         fpath = self.paths["block"].joinpath(fname)
 
         with open(fpath, "w") as f:
@@ -338,7 +334,7 @@ class CopyDraw:
         self.log.info(f"Saved trial: {fpath}")
 
     def save_block_settings(self):
-        fname = f'copyDraw_block{self.block_settings["block_idx"]}_settings.yaml'
+        fname = f"copyDraw_block{self.block_settings['block_idx']}_settings.yaml"
         fpath = self.paths["block"].joinpath(fname)
 
         self.block_settings["trials_vec"] = self.trials_vec
@@ -363,14 +359,13 @@ class CopyDraw:
 
     # MD Maybe we could make the frame a class for itself?
     def create_frame(self, stimuli_idx, scale=True, for_calibration: bool = False):
-
         self.frame["elements"] = {}
         self.frame["elements"]["template"] = create_element(
             "template",
             win=self.win,
             image=template_to_image(
                 self.get_stimuli(stimuli_idx, scale=scale),
-                f'{self.stimuli["fname"][:-4]}_{stimuli_idx}',
+                f"{self.stimuli['fname'][:-4]}_{stimuli_idx}",
                 self.paths["data"].joinpath("template_images"),
                 linewidth=15,
                 for_calibration=for_calibration,
@@ -395,7 +390,7 @@ class CopyDraw:
         self.frame["elements"]["trial_number"] = create_element(
             "trial_number",
             win=self.win,
-            text=f'Trial {self.trial_idx}/{self.block_settings["n_trials"]}',
+            text=f"Trial {self.trial_idx}/{self.block_settings['n_trials']}",
         )
 
         self.log.debug(self.trial_settings)
@@ -570,7 +565,7 @@ class CopyDraw:
         # ie time elapsed during drawing
         trial_time = self.trial_settings["trial_duration"] - cursor_t[-1]
         self.log.info(f"Trial lasted {trial_time} seconds")
-        self.log.info(f'Drew {self.frame["idx"]} frames')
+        self.log.info(f"Drew {self.frame['idx']} frames")
         self.log.info(
             f"Recording rate was {len(cursor_t) / trial_time} points per second"
         )
@@ -702,7 +697,6 @@ class CopyDraw:
                 mouse.getPos(), (0, 0), units=mouse.units, win=self.win
             )
         else:
-
             self.frame["lifted"] = True
             new_pos = self.frame["trace_vertices"][self.frame["idx"]]
 
@@ -739,7 +733,6 @@ class CopyDraw:
     def _exec_drawing(self, trial_timer, mouse, time_bar_x, cursor_t):
         """All the drawing stuff goes in this"""
         while trial_timer.getTime() > 0:
-
             # get remaining time
             t_remain = trial_timer.getTime()
             ratio = t_remain / self.trial_settings["trial_duration"]

@@ -7,7 +7,6 @@ from pylsl import StreamInfo, StreamOutlet
 
 
 class DummyPort:
-
     def write(self, data):
         """Overwriting the write to pp"""
         print(f"PPort would write data: {data}")

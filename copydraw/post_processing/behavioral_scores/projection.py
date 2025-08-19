@@ -1,15 +1,15 @@
-from sklearn.cluster import DBSCAN
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
+from sklearn.cluster import DBSCAN
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 
-from copydraw.utils.logging import logger
 from copydraw.post_processing.behavioral_scores.chrono_split import (
     ChronoGroupsSplit,
 )
+from copydraw.utils.logging import logger
 
 
 def projection_performance_metrics(
@@ -63,9 +63,7 @@ def projection_performance_metrics(
         assert scores.shape[0] == block_labels.shape[0]
         projector = LDA(solver="eigen", shrinkage="auto")
     else:
-        logger.info(
-            "no block labels provided, performing label projection with PCA"
-        )
+        logger.info("no block labels provided, performing label projection with PCA")
         projector = PCA(n_components=1)
     # detect outliers
 
@@ -184,9 +182,7 @@ def create_and_store_fit_details(
                 elif proj_str == "decision_function":
                     transformer = projector.decision_function
 
-                print(
-                    f"projecting {src_data_str=} with {proj_str=}, {train_data_str=}"
-                )
+                print(f"projecting {src_data_str=} with {proj_str=}, {train_data_str=}")
                 dw = proj_to_data_frame(
                     transformer(src_data),
                     l_block_labels,
@@ -202,9 +198,7 @@ def create_and_store_fit_details(
 
                 for i, (ix_train, ix_test) in enumerate(splits):
                     projector = LDA(solver="eigen", shrinkage="auto")
-                    projector.fit(
-                        train_data[ix_train], l_block_labels[ix_train]
-                    )
+                    projector.fit(train_data[ix_train], l_block_labels[ix_train])
                     if proj_str == "transform":
                         transformer = projector.transform
 

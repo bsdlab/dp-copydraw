@@ -187,8 +187,8 @@ mediapy==1.1.6
 memory-profiler==0.61.0
 ml-dtypes==0.3.2
 mne==1.8.0
--e git+ssh://git@github.com/matthiasdold/mne-bids.git@a4ce5e5a479c74bff041ccd7ab89d52094c57848#egg=mne_bids
 mne-nirs==0.7.1
+-e git+ssh://git@github.com/matthiasdold/mne-bids.git@a4ce5e5a479c74bff041ccd7ab89d52094c57848#egg=mne_bids
 mnelab==0.9.1
 moabb==1.0.0
 more-itertools==10.7.0
