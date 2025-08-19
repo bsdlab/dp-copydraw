@@ -1,16 +1,25 @@
 # session settings that aren't specific to patient
-screen_ix: 1                  # which screen to use
-session: 'VPtest'
-data_root: 'D:\data\dareplane\VPtest\behavioral'
-standard_performance_metrics: ['speed_sub', 'velocity_x_sub', 'velocity_y_sub',
-  'isj_sub', 'isj_x_sub', 'isj_y_sub', 'acceleration_sub',
-  'acceleration_x_sub', 'acceleration_y_sub']
+screen_ix: 1 # which screen to use
+session: "VPtest"
+data_root: "./data"
+standard_performance_metrics:
+  [
+    "speed_sub",
+    "velocity_x_sub",
+    "velocity_y_sub",
+    "isj_sub",
+    "isj_x_sub",
+    "isj_y_sub",
+    "acceleration_sub",
+    "acceleration_x_sub",
+    "acceleration_y_sub",
+  ]
 
-block: 
+block:
   n_trials: 2
   letter_time: 3
   n_letters: 3
-  stim_size: 35                 # Size of the trace to be displayed (out of the preset {10, 15, 20, 25, 30, 35})
-  size: 0.6                     # scale the trace if needed
-  finish_when_raised : False    # whether to end trial once pen is lifted
+  stim_size: 35 # Size of the trace to be displayed (out of the preset {10, 15, 20, 25, 30, 35})
+  size: 0.6 # scale the trace if needed
+  finish_when_raised: False # whether to end trial once pen is lifted
 
