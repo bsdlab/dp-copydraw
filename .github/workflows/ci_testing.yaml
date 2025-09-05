@@ -22,4 +22,33 @@ jobs:
           uv venv --python 3.11 .cpvenv
           .cpvenv/Scripts/activate
           uv pip install -r requirements.txt
+
+      # install opengl for psychopy to run properly...
+      - name: Install Mesa3D for OpenGL Support
+        shell: pwsh # Use PowerShell for these commands
+        run: |
+
+          # Download the Mesa3D 7-Zip archive
+          echo "Downloading Mesa3D..."
+          curl -L -o mesa.7z https://github.com/pal1000/mesa-dist-win/releases/download/21.2.1/mesa3d-21.2.1-release-msvc.7z
+
+          # 7-Zip is pre-installed on GitHub runners. Extract the archive to C:\mesa
+          echo "Extracting Mesa3D..."
+          & "C:\Program Files\7-Zip\7z.exe" x mesa.7z -oC:\mesa
+
+          # Find the directory where python.exe is located
+          .cpvenv/Scripts/activate
+          $PYTHON_DIR = Split-Path (Get-Command python).Source
+          echo "Python executable found in: $PYTHON_DIR"
+
+          # Copy the 64-bit Mesa opengl32.dll into the Python directory.
+          # This forces PsychoPy/Pyglet to load this software implementation.
+          echo "Copying opengl32.dll to Python directory..."
+          Copy-Item -Path "C:\mesa\x64\opengl32.dll" -Destination $PYTHON_DIR
+
+          echo "Mesa3D setup complete."
+
+      - name: Run test
+        run: |
+          .cpvenv/Scripts/activate
           python -m pytest -s -v tests/
