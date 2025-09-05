@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11" # Specify a Python version compatible with your app
+          python-version: "3.11.9" # Specify a Python version compatible with your app
 
       - name: Install Python dependencies
         run: |
