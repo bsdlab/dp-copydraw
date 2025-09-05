@@ -101,4 +101,4 @@ xmlschema==4.1.0
 xmltodict==0.15.0
 zope-event==5.1
 zope-interface==7.2
-
+pytest==8.4.2
