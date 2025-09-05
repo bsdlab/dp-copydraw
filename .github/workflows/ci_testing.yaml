@@ -23,6 +23,9 @@ jobs:
           .cpvenv/Scripts/activate
           uv pip install -r requirements.txt
 
+      - name: Setup tmate session for debugging
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run Pytest
         run: |
           python -m pytest -s -v tests/
