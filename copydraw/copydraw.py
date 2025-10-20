@@ -32,16 +32,54 @@ from copydraw.vpport import VPPort
 
 
 class CopyDraw:
-    def __init__(
-        self,
-        data_dir,
-        script_dir,
-        screen_ix=None,
-        screen_size=(1680, 1050),
-        flip=True,
-        for_calibration: bool = False,  # add calibration dots,
-        serial_nr: str | None = None,  # Usb device for the trigger box
-    ):
+    """
+    Class that implements the copydraw paradigm.
+
+    This class implements the copydraw paradigm where participants trace over template
+    shapes displayed on screen. It handles stimulus presentation, user input tracking,
+    data collection, and experiment flow control.
+
+    Parameters
+    ----------
+    data_dir : str
+        Directory path for storing experimental data and results.
+    script_dir : str
+        Directory path containing experiment scripts and template files.
+    screen_ix : int, optional
+        Screen index for display. If None, uses default screen.
+    screen_size : tuple[int, int], optional
+        Screen resolution as (width, height). Default is (1680, 1050).
+    flip : bool, optional
+        Whether to flip stimuli horizontally. Default is True.
+    for_calibration : bool, optional
+        If True, adds calibration elements to the display. Default is False.
+    serial_nr : str, optional
+        Serial port identifier for trigger box communication. Default is 'COM4'.
+
+    Attributes
+    ----------
+    log : logging.Logger
+        Logger instance for recording experiment events.
+    vpp : VPPort
+        Virtual parallel port for sending trigger signals.
+    paths : dict
+        Dictionary containing file and directory paths for the experiment.
+    win_settings : dict
+        Display window configuration settings.
+    stimuli : dict
+        Dictionary containing stimulus data and parameters.
+    """
+
+    def __init__(self,
+                 data_dir,
+                 script_dir,
+                 screen_ix=None,
+                 screen_size=(1680, 1050),
+                 flip=True,
+                 for_calibration: bool = False,   # add calibration dots,
+                 serial_nr: str = 'COM4',  # Usb device for the trigger box
+                 ):
+
         self.log = logger
 
         self.log.info("Initialising..")
@@ -107,17 +145,32 @@ class CopyDraw:
         # self.init_screen()
         # self.set_block_settings()
 
-        self.log.debug("initialised")
+        self.log.debug('initialised')
 
-    def init_session(
-        self,
-        session_name=str,
-    ):
-        self.names["session"] = session_name
-        self.log.info(f"Initialised session: {self.names['session']}")
-        self.paths["session"] = self.paths["results_path"]
+    def init_session(self, session_name=str, ):
+        """
+        Sets the session name and result path for the experiment.
+
+        Parameters
+        ----------
+        session_name : str
+            Name identifier for the experimental session.
+        """
+        self.names['session'] = session_name
+        self.log.info(f'Initialised session: {self.names["session"]}')
+        self.paths['session'] = self.paths['results_path']
+        self.log.debug("initialised")
+        
 
     def init_screen(self, win_color: tuple[int, int, int] = (-1, -1, -1)):
+        """
+        Initialize the PsychoPy display window with the specified settings.
+
+        Parameters
+        ----------
+        win_color : tuple[int, int, int], optional
+            RGB color values for window background. Default is (-1, -1, -1).
+        """
         self.win = visual.Window(
             # fullscr=True if self.win_settings['screen_size'] is None else False,
             fullscr=False,
@@ -134,19 +187,45 @@ class CopyDraw:
         self.win_settings["aspect_ratio"] = self.win.size[0] / self.win.size[1]
         self.photobox = self.get_photobox()
 
-    def set_block_settings(
-        self,
-        n_trials=1,
-        letter_time=2.2,
-        finish_when_raised=False,
-        n_letters=3,
-        stim_size=35,  # this is the size of the templates used
-        size=0.5,  # scaling factor applied to the template -> by default smaller than full screen!
-        interp=True,
-        shuffle=True,
-        # block_nr: None | int = None
-        block_nr: int = None,
-    ):
+    def set_block_settings(self,
+                           n_trials=1,
+                           letter_time=2.2,
+                           finish_when_raised=False,
+                           n_letters=3,
+                           stim_size=35,  # this is the size of the templates used
+                           size=.5,  # scaling factor applied to the template -> by default smaller than full screen!
+                           interp=True,
+                           shuffle=True,
+                           # block_nr: None | int = None
+                           block_nr: int = None
+                           ):
+        """
+        Configure settings for a block of trials.
+
+        Sets up various parameters that control the experiment behavior including
+        trial count, timing, stimulus properties, and block identification.
+
+        Parameters
+        ----------
+        n_trials : int, optional
+            Number of trials in the block. Default is 1.
+        letter_time : float, optional
+            Time duration per letter in seconds. Default is 2.2.
+        finish_when_raised : bool, optional
+            Whether to finish trial when stylus is raised. Default is False.
+        n_letters : int, optional
+            Number of letters in the stimulus. Default is 3.
+        stim_size : int, optional
+            Size identifier for stimulus templates. Default is 35.
+        size : float, optional
+            Scaling factor for stimulus display (0-1). Default is 0.5.
+        interp : bool, optional
+            Whether to interpolate stimulus paths. Default is True.
+        shuffle : bool, optional
+            Whether to shuffle trial order. Default is True.
+        block_nr : int, optional
+            Block number identifier. If None, automatically determines the next block number.
+        """
         # supplied in the block_config.yaml
         self.block_settings["n_trials"] = n_trials
         self.block_settings["letter_time"] = letter_time
@@ -166,6 +245,12 @@ class CopyDraw:
             self.block_settings["block_idx"] = block_nr
 
     def init_block(self):
+        """
+        Initialize a block of trials.
+
+        Sets up the display window, creates output folders, loads stimuli, and prepares
+        the trial sequence.
+        """
         self.init_screen()
         block_nr = self.block_settings["block_idx"]
 
@@ -204,24 +289,43 @@ class CopyDraw:
         self.trial_idx = 1
 
         # create template order
-        self.stimuli["order"] = create_template_order(self.stimuli, self.block_settings)
+        self.stimuli['order'] = create_template_order(self.stimuli,
+                                                      self.block_settings)
 
-    def exec_block(
-        self,
-        block_nr: int | None = None,
-        stim: str | None = None,
-        block_config: dict | None = None,
-        data_root: str | None = None,
-    ) -> (
+    def exec_block(self,
+                   # block_nr: None | int = None,
+                   # stim: None | str = None,
+                   # block_config: None | dict = None
+                   block_nr: int = None,
+                   stim: str = None,
+                   block_config: dict = None,
+                   data_root: str | None = None
+                   ) -> int:   # TODO: Make this return a subprocess which is running the whole psychcopy stuff
+        """
+        Execute a complete block of copy-drawing trials.
+
+        Initializes the block with configuration settings, runs all n trials in sequence,
+        saves trial data, and performs cleanup.
+
+        Parameters
+        ----------
+        block_nr : int, optional
+            Block number identifier. If None, auto-generates based on existing data.
+        stim : str, optional
+            Stimulus identifier prefix for file naming. If None, uses 'UNKNOWN'.
+        block_config : dict, optional
+            Configuration dictionary for block settings. If None, loads from config file.
+        data_root : str, optional
+            Override for data storage root directory.
+
+        Returns
+        -------
         int
-    ):  # TODO: Make this return a subprocess which is running the whole psychcopy stuff
-        """Will call init_block(**cfg) before calling exec trial n_trials
-        times, also calling save_trial for each. Trials vector and block
-         settings saved at the end.
+            0 if block executed successfully
 
-         Note: Processing a file_name will not be implemented to keep the nomenclature consistent. Only pass a prefix
-         and a block_nr
-
+        Notes
+        -----
+        Processing a file name is not implemented to keep the nomenclature consistent.
         """
         if data_root:
             self.paths["session"] = Path(data_root)
@@ -260,12 +364,27 @@ class CopyDraw:
         return 0
 
     def load_stimuli(self, path, short=True, size=35):
-        self.stimuli["fname"] = f"Size_{'short_' if short else ''}{size}.mat"
-        self.paths["stimuli"] = Path(path, self.stimuli["fname"])
-        self.log.info(f"loading stimuli: {self.paths['stimuli']}")
-        assert self.paths["stimuli"].exists(), (
-            f"Stimuli data not found: {self.paths['stimuli']}"
-        )
+        """
+        Load stimulus templates from MATLAB file.
+
+        Loads pre-defined drawing templates from a .mat file and stores them
+        for use in trials. Template selection is based on length and size parameters.
+
+        Parameters
+        ----------
+        path : str or Path
+            Directory path containing stimulus template files.
+        short : bool, optional
+            If True, loads short templates, otherwise loads standard templates.
+            Default is True.
+        size : int, optional
+            Size identifier for template selection. Default is 35.
+        """
+        self.stimuli['fname'] = f'Size_{"short_" if short else ""}{size}.mat'
+        self.paths['stimuli'] = Path(path, self.stimuli['fname'])
+        self.log.info(f'loading stimuli: {self.paths["stimuli"]}')
+        assert self.paths['stimuli'].exists(
+        ), f"Stimuli data not found: {self.paths['stimuli']}"
 
         self.stimuli["file"] = scipy.io.loadmat(self.paths["stimuli"])
         self.log.info("loaded mat file")
@@ -276,14 +395,19 @@ class CopyDraw:
         self.stimuli["n_templates"] = self.stimuli["templates"].shape[0]
 
     def scale_stimuli(self):
-        """Scaling transforms the position to normalized 2d coordinates (-.5, .5) x (-.5, 5)"""
-        self.log.info("Scaling data stim...")
-        self.stimuli["current_stim"], self.stimuli["scaling_matrix"] = (
-            scale_to_norm_units(self.stimuli["current_stim"])
-        )
-        self.stimuli["the_box"], _ = scale_to_norm_units(
-            self.stimuli["the_box"], scaling_matrix=self.stimuli["scaling_matrix"]
-        )
+        """
+        Scale stimulus coordinates to normalized display units.
+
+        Transforms stimulus coordinates from pixel space to normalized 2D coordinates
+        in the range (-0.5, 0.5) for both x and y axes. Also handles coordinate flipping
+        if enabled in settings.
+        """
+        self.log.info('Scaling data stim...')
+        self.stimuli['current_stim'], self.stimuli['scaling_matrix'] = \
+            scale_to_norm_units(self.stimuli['current_stim'])
+        self.stimuli['the_box'], _ = \
+            scale_to_norm_units(self.stimuli['the_box'],
+                                scaling_matrix=self.stimuli['scaling_matrix'])
 
         # reorder
         new_box_array = np.zeros([4, 2])
@@ -304,7 +428,24 @@ class CopyDraw:
             )
 
     def get_stimuli(self, stimuli_idx: int, scale=True):
-        # this func is a little long, how can it be broken up?
+        """
+        Retrieve and prepare a specific stimulus template for display.
+
+        Loads the specified stimulus template, applies scaling and interpolation if enabled,
+        and sets the initial cursor position.
+
+        Parameters
+        ----------
+        stimuli_idx : int
+            Index of the stimulus template to retrieve.
+        scale : bool, optional
+            Whether to apply coordinate scaling. Default is True.
+
+        Returns
+        -------
+        np.ndarray
+            The processed stimulus coordinates as a 2D array.
+        """
 
         self.stimuli["current_stim"] = self.stimuli["templates"][stimuli_idx].astype(
             float
@@ -324,6 +465,9 @@ class CopyDraw:
         return self.stimuli["current_stim"]
 
     def save_trial(self):
+        """
+        Save the current trial results to a YAML file.
+        """
         # rudimentary atm, can ble cleaned up, flattened a little maybe
 
         fname = f"{self.file_prefix}copyDraw_block{self.block_settings['block_idx']}_trial{self.trial_idx}.yaml"
@@ -336,8 +480,11 @@ class CopyDraw:
         self.log.info(f"Saved trial: {fpath}")
 
     def save_block_settings(self):
-        fname = f"copyDraw_block{self.block_settings['block_idx']}_settings.yaml"
-        fpath = self.paths["block"].joinpath(fname)
+        """
+        Save block settings to a YAML file.
+        """
+        fname = f'copyDraw_block{self.block_settings["block_idx"]}_settings.yaml'
+        fpath = self.paths['block'].joinpath(fname)
 
         self.block_settings["trials_vec"] = self.trials_vec
         self.block_settings["templates"] = self.stimuli["templates"]
@@ -350,20 +497,42 @@ class CopyDraw:
     # draw order is based on .draw() call order, consider using an ordered dict?
     # MD: Ordered dict would be a good idea
     def draw_and_flip(self, exclude=[]):
-        """Draws every element in the frame elements dict, excluding those
-        passed in via exclude."""
-        for element_name, element in self.frame["elements"].items():
+        """
+        Render all frame elements to the display and update the screen.
+
+        Parameters
+        ----------
+        exclude : list, optional
+            List of element names to skip during drawing. Default is empty list.
+        """
+        for element_name, element in self.frame['elements'].items():
             if element_name in exclude:
                 continue
             else:
                 element.draw()
         self.win.flip()
 
-    # MD Maybe we could make the frame a class for itself?
     def create_frame(self, stimuli_idx, scale=True, for_calibration: bool = False):
-        self.frame["elements"] = {}
-        self.frame["elements"]["template"] = create_element(
-            "template",
+        """
+        Create all visual elements and stores it in the frame dict.
+
+        Sets up the complete visual display including template, bounding box,
+        cursor, trace elements, instructions, and UI components. For calibration
+        mode, adds additional calibration-specific elements.
+
+        Parameters
+        ----------
+        stimuli_idx : int
+            Index of the stimulus template to display.
+        scale : bool, optional
+            Whether to apply coordinate scaling to the stimulus. Default is True.
+        for_calibration : bool, optional
+            If True, adds calibration dots and grid elements. Default is False.
+        """
+
+        self.frame['elements'] = {}
+        self.frame['elements']['template'] = create_element(
+            'template',
             win=self.win,
             image=template_to_image(
                 self.get_stimuli(stimuli_idx, scale=scale),
@@ -449,9 +618,23 @@ class CopyDraw:
 
         self.frame["elements"]["time_bar"] = create_element("time_bar", win=self.win)
 
-    def add_calibration_frame_elements(
-        self, stimuli_idx: int, scale: bool, size: float = 1.5
-    ):
+    def add_calibration_frame_elements(self, stimuli_idx: int, scale: bool, size: float = 1.5):
+        """
+        Add calibration-specific visual elements to the frame.
+
+        Creates additional visual elements for calibration mode including
+        a template overlay, calibration grid points, and corner markers
+        to assist with system calibration and validation.
+
+        Parameters
+        ----------
+        stimuli_idx : int
+            Index of the stimulus template to use for calibration overlay.
+        scale : bool
+            Whether to apply coordinate scaling to the stimulus.
+        size : float, optional
+            Scaling factor for calibration elements. Default is 1.5.
+        """
         vert = self.get_stimuli(stimuli_idx, scale=scale)
         self.frame["elements"]["old_template"] = visual.shape.ShapeStim(
             win=self.win,
@@ -528,8 +711,21 @@ class CopyDraw:
     # currently they are initialised differently (0 and 1)
     # MD: lets check this, could be that we have 6 stimuli (6 unique traces), but 12 trials
     def exec_trial(self, stimuli_idx, scale=True):
-        """Top level method that executes a single trial"""
+        """
+        Execute a single copy-drawing trial.
 
+        Parameters
+        ----------
+        stimuli_idx : int
+            Index specifying which stimulus template to use for this trial.
+        scale : bool, optional
+            Whether to apply coordinate scaling to stimulus. Default is True.
+
+        Notes
+        -----
+        This method handles the complete trial flow including frame initialization,
+        drawing loop execution, timing control, and data collection.
+        """
         # track if mouse is currently lifted
         self.frame["lifted"] = True
         # frame index of the last started trace
@@ -619,7 +815,23 @@ class CopyDraw:
         logger.info("marker-%d" % val)
 
     def _run_trial_main_loop(self, clock, time_bar_x, stim_idx: int):
-        """To run the main drawing loop"""
+        """
+        Execute the main drawing loop for a trial.
+
+        Parameters
+        ----------
+        clock : psychopy.clock.Clock
+            PsychoPy clock object for timing control.
+        time_bar_x : float
+            Initial width of the time progress bar.
+        stim_idx : int
+            Index of the current stimulus being drawn.
+
+        Returns
+        -------
+        tuple
+            Pre-trial time (ptt), start timestamp, and cursor time array.
+        """
         started_drawing = False
         cursor_t = np.zeros([10000])  # for recording times with cursor pos
         ptt = None

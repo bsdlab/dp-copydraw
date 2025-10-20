@@ -156,3 +156,9 @@ cython_debug/
 
 configs/block_config/
 data/
+
+# Documentation
+/.quarto/
+reference/
+objects.json
+_site/
