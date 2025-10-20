@@ -12,7 +12,6 @@ def init_paradigm(
     script_root: str | None = None,
     serial_nr: str | None = "COM4",
 ):
-
     # load configs/paradigm_config.yaml
     cfg = load_paradigm_config(data_root=data_root, script_root=script_root)
 
@@ -36,7 +35,6 @@ def main(
     block_nr: int | None = None,
     serial_nr: str | None = "COM4",
 ):
-
     serial_nr = None if serial_nr == "None" else serial_nr
     paradigm = init_paradigm(serial_nr=serial_nr)
     logger.debug(f"{paradigm}")
