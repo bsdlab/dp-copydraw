@@ -235,6 +235,8 @@ class CopyDraw:
 
         # function needed to set default values, in case
         # they are missing in the block config
+        # TODO: this whole setup should be refactored with a proper config object and less `init` steps required
+        #       potentially as port of a general port to a `pyglet` only version
         self.set_block_settings(**block_config, block_nr=block_nr)
         self.init_block()
 
