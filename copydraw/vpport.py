@@ -6,13 +6,24 @@ import serial
 from pylsl import StreamInfo, StreamOutlet
 
 
+class DummyPort:
+    def write(self, data):
+        """Overwriting the write to pp"""
+        print(f"PPort would write data: {data}")
+
+    def close(self):
+        print("Would close port")
+
+
 class VPPort(object):
     """Class for interacting with the virtual serial
     port provided by the BV TriggerBox
 
     """
 
-    def __init__(self, serial_nr, pulsewidth=0.01):
+    def __init__(
+        self, serial_nr, pulsewidth=0.01, raise_on_missing_serial: bool = True
+    ):
         """Open the port at the given serial_nr
 
         Parameters
@@ -25,6 +36,8 @@ class VPPort(object):
 
         """
         try:
+            if serial_nr is None:
+                raise Exception("No serial number provided")
             self.port = serial.Serial(serial_nr)
         except Exception as ex:  # if trigger box is not available at given serial_nr
             print(
@@ -35,7 +48,8 @@ class VPPort(object):
                 + "?" * 80
             )
             self.create_dummy(serial_nr)
-            raise ex
+            if raise_on_missing_serial:
+                raise ex
 
         self.pulsewidth = pulsewidth
 
@@ -88,9 +102,4 @@ class VPPort(object):
             + "-" * 80
         )
 
-        self.port = None
-        self.write = self.dummy_write
-
-    def dummy_write(self, data):
-        """Overwriting the write to pp"""
-        print(f"PPort would write data: {data}")
+        self.port = DummyPort()
