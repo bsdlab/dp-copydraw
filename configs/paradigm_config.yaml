@@ -2,6 +2,7 @@
 screen_ix: 1 # which screen to use
 session: "VPtest"
 data_root: "./data"
+com_port: 'COM4'
 standard_performance_metrics:
   [
     "speed_sub",

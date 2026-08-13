@@ -33,7 +33,7 @@ def init_paradigm(data_root: str = None, script_root: str = None):
         cfg["script_root"],
         # nr of screen, stored in configs/paradigm_configs.yaml
         screen_ix=cfg["screen_ix"],
-        serial_nr=serial_nr,
+        serial_nr=cfg.get("com_port", "COM4"),
     )
 
     # Session folder needs to be initialized for copydraw separately
@@ -42,12 +42,13 @@ def init_paradigm(data_root: str = None, script_root: str = None):
     return paradigm
 
 
-def main(for_calibration: bool = False,
-         stim: str = None,
-         block_nr: int = None
-         # stim: None | str = None,
-         # block_nr: None | int = None
-         ):
+def main(
+    for_calibration: bool = False,
+    stim: str = None,
+    block_nr: int = None,
+    # stim: None | str = None,
+    # block_nr: None | int = None
+):
     """
     Main function to run the CopyDraw experiment.
 
